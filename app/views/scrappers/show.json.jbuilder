@@ -1,0 +1,1 @@
+json.partial! "scrappers/scrapper", scrapper: @scrapper

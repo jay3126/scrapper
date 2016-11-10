@@ -1,0 +1,1 @@
+json.array! @scrappers, partial: 'scrappers/scrapper', as: :scrapper
