@@ -21,6 +21,14 @@
       </tr>
     <% end %>
   </tbody>
+  <tbody>
+   <% @docs.each do |item| %>
+   <tr>
+   <% price=item.css(".s-price").text%>
+   <h1><%= price.text %></h1>
+   </tr>
+   <%end%>
+  </tbody>
 </table>
 
 <br>

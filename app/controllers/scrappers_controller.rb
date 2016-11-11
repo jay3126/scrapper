@@ -25,19 +25,27 @@ class ScrappersController < ApplicationController
   # POST /scrappers
   # POST /scrappers.json
   def create
-    @scrapper = Scrapper.new(scrapper_params)
-    
-    fuck = scrapper_params
-    puts "............#{fuck}..................."  
-    
-    require 'open-uri' 
+    @scrapper = Scrapper.new(:user_id => current_user.id, :url => params[:scrapper][:url]) 
     require 'metainspector'
-    page = MetaInspector.new('http://www.amazon.in/s/ref=nb_sb_ss_i_4_3?url=search-alias%3Daps&field-keywords=dji+&rh=i%3Aaps%2Ck%3Adji+')
-    tit= page.title
-    meta= page.meta_tags
-    puts "..........#{tit}................"
-    puts "...........#{meta}..............."
-
+    require 'nokogiri'
+    url = params[:scrapper][:url]
+    require 'open-uri'
+    @page = MetaInspector.new(url)
+    puts "..........#{@page.title}................"          #TThe value of @page.title and meta_tag is needed on
+    puts "...........#{@page.meta_tags}..............."      # show.html.erb file. 
+    
+    
+    data = Nokogiri::HTML(open(url))
+   
+    doc= data.css(".s-item-container")
+    doc.css(".s-item-container").each do |item|
+        price= item.css(".s-price").text                # I tried priniting price,title and rating to show.html.erb
+        title= item.css(".s-access-title").text         # But was not able to do it.
+        rating= item.css("span+ .a-text-normal").text
+        puts "#{title} - #{price}  - #{rating}"
+    end
+    @tit= @doc.title
+    puts ".................#{@tit}...................."
     respond_to do |format|
       if @scrapper.save
         format.html { redirect_to @scrapper, notice: 'Scrapper was successfully created.' }
