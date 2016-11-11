@@ -9,3 +9,23 @@
 
 <%= link_to 'Edit', edit_scrapper_path(@scrapper) %> |
 <%= link_to 'Back', scrappers_path %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Price</th>
+      <th>Rating</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @docs.each do |item| %>
+      <tr>
+        <td><%= item.css(".s-access-title").text %></td>
+        <td><%= item.css(".s-price").text %></td>
+        <td><%= item.css("span+ .a-text-normal").text %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

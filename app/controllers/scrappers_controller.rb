@@ -11,6 +11,17 @@ class ScrappersController < ApplicationController
   # GET /scrappers/1
   # GET /scrappers/1.json
   def show
+    url = @scrapper.url
+    require 'metainspector'
+    require 'nokogiri'
+    require 'open-uri'
+    @page = MetaInspector.new(url)
+    puts "..........#{@page.title}................"
+    puts "...........#{@page.meta_tags}..............."
+
+    data = Nokogiri::HTML(open(url))
+    doc = data.css(".s-item-container")
+    @docs = data.css(".s-item-container")
   end
 
   # GET /scrappers/new
@@ -25,30 +36,30 @@ class ScrappersController < ApplicationController
   # POST /scrappers
   # POST /scrappers.json
   def create
-    @scrapper = Scrapper.new(:user_id => current_user.id, :url => params[:scrapper][:url]) 
+    @scrapper = Scrapper.new(:user_id => current_user.id, :url => params[:scrapper][:url])
     require 'metainspector'
     require 'nokogiri'
     url = params[:scrapper][:url]
     require 'open-uri'
     @page = MetaInspector.new(url)
     puts "..........#{@page.title}................"          #TThe value of @page.title and meta_tag is needed on
-    puts "...........#{@page.meta_tags}..............."      # show.html.erb file. 
-    
-    
+    puts "...........#{@page.meta_tags}..............."      # show.html.erb file.
+
+
     data = Nokogiri::HTML(open(url))
-   
     doc= data.css(".s-item-container")
+    @docs = data.css(".s-item-container")
     doc.css(".s-item-container").each do |item|
         price= item.css(".s-price").text                # I tried priniting price,title and rating to show.html.erb
         title= item.css(".s-access-title").text         # But was not able to do it.
         rating= item.css("span+ .a-text-normal").text
         puts "#{title} - #{price}  - #{rating}"
     end
-    @tit= @doc.title
+    # @tit= @doc.title
     puts ".................#{@tit}...................."
     respond_to do |format|
       if @scrapper.save
-        format.html { redirect_to @scrapper, notice: 'Scrapper was successfully created.' }
+        format.html { redirect_to scrappers_path, notice: 'Scrapper was successfully created.' }
         format.json { render :show, status: :created, location: @scrapper }
       else
         format.html { render :new }
