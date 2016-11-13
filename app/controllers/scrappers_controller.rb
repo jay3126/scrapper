@@ -17,6 +17,7 @@ class ScrappersController < ApplicationController
   def show
     url = @scrapper.url
     @metatags = MetaInspector.new(url)
+    puts ".......#{@metatags.meta_tags}........."
     data = Nokogiri::HTML(open(url))
     @doc= data.css(".s-item-container")
   end
@@ -35,6 +36,14 @@ class ScrappersController < ApplicationController
   def create
     @scrapper = Scrapper.new(:user_id => current_user.id, :url => params[:scrapper][:url])
     url = params[:scrapper][:url]
+    doc = Nokogiri::HTML(open(url))
+    items = doc.css(".s-item-container")
+    items.each do |item|
+     Product.create!(
+      title: item.css(".s-access-title").text.strip,
+      price: item.css(".s-price").text.to_d,
+      rating: item.css("span+ .a-text-normal").text.to_f)
+    end
     respond_to do |format|
       if @scrapper.save
         format.html { redirect_to scrappers_path, notice: 'Scrapper was successfully created.' }
