@@ -3,25 +3,35 @@
 
 <h1>Scraped Data</h1>
 
-<h3><%= @scrapper.url %></h3>
-<h3>Title: <%= @metatags.title%></h3>
-<h3> Meta Tag Description: <%= @metatags.meta_tags["name"]["description"].first %></h3>
-<h3> Meta Tag Keywords: <%= @metatags.meta_tags["name"]["keywords"].first %></h3>
-<table>
+<dl class="dl-horizontal">
+	<dt>Url: </dt>
+	<dd><%= @scrapper.url %></dd>
+	<dt>Title: </dt>
+	<dd><%= @metatags.title%></dd>
+	<dt> Meta Tag Description:</dt> 
+	<dd><%= @metatags.meta_tags["name"]["description"].first %></dd>
+	<dt> Meta Tag Keywords:</dt> 
+	<dd><%= @metatags.meta_tags["name"]["keywords"].first %></dd>
+</dl>
+
+
+<table class="table table-hover">
    <thead>
-     <tr>
-       <th>Title</th>
+     <tr class="success">
+       <th>Product Name</th>
        <th>Price</th>
        <th>Rating</th>
+       <th>COD</th>
      </tr>
    </thead>
  
    <tbody>
      <% @doc.each do |item| %>
-       <tr>
+       <tr class ="info">
          <td><%= item.css(".s-access-title").text %></td>
          <td><%= item.css(".s-price").text %></td>
          <td><%= item.css("span+ .a-text-normal").text %></td>
+         <td><%= item.css(".a-spacing-top-mini").text%></td>
        </tr>
      <% end %>
    </tbody>
