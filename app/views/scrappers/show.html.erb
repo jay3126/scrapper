@@ -1,6 +1,5 @@
 <p id="notice"><%= notice %></p>
 
-
 <h1>Scraped Data</h1>
 
 <dl class="dl-horizontal">
@@ -8,12 +7,14 @@
 	<dd><%= @scrapper.url %></dd>
 	<dt>Title: </dt>
 	<dd><%= @metatags.title%></dd>
-	<dt> Meta Tag Description:</dt> 
+	<dt> Meta Tag Description:</dt>
 	<dd><%= @metatags.meta_tags["name"]["description"].first %></dd>
-	<dt> Meta Tag Keywords:</dt> 
+	<dt> Meta Tag Keywords:</dt>
 	<dd><%= @metatags.meta_tags["name"]["keywords"].first %></dd>
 </dl>
 
+<%= link_to 'Edit', edit_scrapper_path(@scrapper) %> |
+<%= link_to 'Back', scrappers_path %>
 
 <table class="table table-hover">
    <thead>
@@ -28,15 +29,11 @@
    <tbody>
      <% @doc.each do |item| %>
        <tr class ="info">
-         <td><%= item.css(".s-access-title").text %></td>
-         <td><%= item.css(".s-price").text %></td>
-         <td><%= item.css("span+ .a-text-normal").text %></td>
-         <td><%= item.css(".a-spacing-top-mini").text%></td>
+         <td><%= item.title %></td>
+         <td><%= item.price.to_s %></td>
+         <td><%= item.rating %></td>
+         <td><%= item.cod %></td>
        </tr>
-     <% end %>
+    <% end %>
    </tbody>
 </table>
-
-
-<%= link_to 'Edit', edit_scrapper_path(@scrapper) %> |
-<%= link_to 'Back', scrappers_path %>

@@ -9,7 +9,7 @@ class ScrappersController < ApplicationController
   # GET /scrappers
   # GET /scrappers.json
   def index
-    @scrappers = Scrapper.all.where(:user_id => current_user.id)
+    @scrappers = current_user.scrappers
   end
 
   # GET /scrappers/1
@@ -17,9 +17,7 @@ class ScrappersController < ApplicationController
   def show
     url = @scrapper.url
     @metatags = MetaInspector.new(url)
-    puts ".......#{@metatags.meta_tags}........."
-    data = Nokogiri::HTML(open(url))
-    @doc= data.css(".s-item-container")
+    @doc = @scrapper.products
   end
 
   # GET /scrappers/new
@@ -34,18 +32,26 @@ class ScrappersController < ApplicationController
   # POST /scrappers
   # POST /scrappers.json
   def create
-    @scrapper = Scrapper.new(:user_id => current_user.id, :url => params[:scrapper][:url])
     url = params[:scrapper][:url]
-    doc = Nokogiri::HTML(open(url))
-    items = doc.css(".s-item-container")
-    items.each do |item|
-     Product.create!(
-      title: item.css(".s-access-title").text.strip,
-      price: item.css(".s-price").text.to_d,
-      rating: item.css("span+ .a-text-normal").text.to_f)
+    @scrapper = Scrapper.new(user_id: current_user.id, url: url)
+    # checking if scrapper is saved or not. This is to make sure we dont have crappy data in db.
+    is_scrapper_saved = @scrapper.save
+    # create products for scrapper only if it is valied and saved in db.
+    if is_scrapper_saved
+      doc = Nokogiri::HTML(open(url))
+      items = doc.css(".s-item-container")
+      items.each do |item|
+       Product.create!(
+        title: item.css(".s-access-title").text.strip,
+        price: item.css(".s-price").text.split(',').map!(&:strip).join().gsub(/\p{Space}/,'').to_d,
+        rating: item.css("span+ .a-text-normal").text.to_f,
+        cod: item.css(".a-spacing-top-mini").text,
+        scrapper_id: @scrapper.id,
+        user_id: current_user.id)
+      end
     end
     respond_to do |format|
-      if @scrapper.save
+      if is_scrapper_saved
         format.html { redirect_to scrappers_path, notice: 'Scrapper was successfully created.' }
         format.json { render :show, status: :created, location: @scrapper }
       else
